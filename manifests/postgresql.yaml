@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: barbo-anwar-postgresql-secret
+  namespace: grupp1
+type: Opaque
+stringData:
+  POSTGRESQL_USER: guestbook
+  POSTGRESQL_PASSWORD: guestbook123
+  POSTGRESQL_DATABASE: guestbook
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: barbo-anwar-postgresql-pvc
+  namespace: grupp1
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: barbo-anwar-postgresql
+  namespace: grupp1
+  labels:
+    app: barbo-anwar-guestbook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: barbo-anwar-postgresql
+  template:
+    metadata:
+      labels:
+        app: barbo-anwar-postgresql
+    spec:
+      containers:
+      - name: postgresql
+        image: registry.redhat.io/rhel9/postgresql-16:latest
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRESQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: barbo-anwar-postgresql-secret
+              key: POSTGRESQL_USER
+        - name: POSTGRESQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: barbo-anwar-postgresql-secret
+              key: POSTGRESQL_PASSWORD
+        - name: POSTGRESQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: barbo-anwar-postgresql-secret
+              key: POSTGRESQL_DATABASE
+        volumeMounts:
+        - name: postgresql-data
+          mountPath: /var/lib/pgsql/data
+        resources:
+          limits:
+            memory: 512Mi
+            cpu: 500m
+          requests:
+            memory: 256Mi
+            cpu: 250m
+      volumes:
+      - name: postgresql-data
+        persistentVolumeClaim:
+          claimName: barbo-anwar-postgresql-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: barbo-anwar-postgresql
+  namespace: grupp1
+spec:
+  ports:
+  - port: 5432
+  selector:
+    app: barbo-anwar-postgresql

@@ -1,0 +1,5 @@
+*.exe
+*.dll
+.env
+go.work
+go.work.sum

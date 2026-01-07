@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gästbok - Anwar</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header { text-align: center; color: white; margin-bottom: 30px; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .stats {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: white;
+            display: flex;
+            justify-content: space-around;
+        }
+        .stat-value { font-size: 2em; font-weight: bold; text-align: center; }
+        .stat-label { font-size: 0.9em; opacity: 0.8; text-align: center; }
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; color: #333; font-weight: 600; }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; border: none; padding: 12px 30px;
+            border-radius: 8px; font-size: 1.1em; cursor: pointer; width: 100%;
+        }
+        .entry {
+            background: white; border-radius: 10px; padding: 20px;
+            margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .entry-name { font-weight: bold; color: #667eea; }
+        .entry-date { color: #999; font-size: 0.9em; float: right; }
+        .loading { text-align: center; padding: 40px; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Anwars Gästbok</h1>
+            <p>DevOps24 - ArgoCD Projekt</p>
+        </div>
+        
+        <div class="stats">
+            <div><div class="stat-value" id="totalEntries">-</div><div class="stat-label">Inlägg</div></div>
+            <div><div class="stat-value" id="cacheStatus">-</div><div class="stat-label">Cache</div></div>
+        </div>
+        
+        <div class="card">
+            <h2>Skriv i gästboken</h2>
+            <form id="entryForm">
+                <div class="form-group">
+                    <label for="name">Namn:</label>
+                    <input type="text" id="name" required placeholder="Ditt namn">
+                </div>
+                <div class="form-group">
+                    <label for="message">Meddelande:</label>
+                    <textarea id="message" required placeholder="Skriv ditt meddelande här..."></textarea>
+                </div>
+                <button type="submit">Skicka inlägg</button>
+            </form>
+        </div>
+        
+        <div class="entries">
+            <h2 style="color: white; margin-bottom: 20px;">Senaste inläggen</h2>
+            <div id="entriesList" class="loading">Laddar inlägg...</div>
+        </div>
+    </div>
+
+    <script>
+        async function loadEntries() {
+            try {
+                const response = await fetch('/api/entries');
+                const entries = await response.json();
+                const cacheStatus = response.headers.get('X-Cache');
+                
+                const entriesList = document.getElementById('entriesList');
+                if (entries.length === 0) {
+                    entriesList.innerHTML = '<div class="entry">Inga inlägg än.</div>';
+                    return;
+                }
+                
+                entriesList.innerHTML = entries.map(entry => {
+                    const date = new Date(entry.created_at).toLocaleString('sv-SE');
+                    return '<div class="entry"><span class="entry-name">' + escapeHtml(entry.name) + '</span>' +
+                           '<span class="entry-date">' + date + '</span><br><br>' + 
+                           '<div>' + escapeHtml(entry.message) + '</div></div>';
+                }).join('');
+                
+                document.getElementById('cacheStatus').textContent = cacheStatus === 'HIT' ? '✓' : '○';
+            } catch (error) {
+                console.error(error);
+                document.getElementById('entriesList').innerHTML = '<div class="entry">Kunde inte ladda inlägg.</div>';
+            }
+        }
+        
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const stats = await response.json();
+                document.getElementById('totalEntries').textContent = stats.total_entries_db || 0;
+            } catch (e) {}
+        }
+        
+        document.getElementById('entryForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const message = document.getElementById('message').value;
+            
+            await fetch('/api/entries', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, message })
+            });
+            
+            document.getElementById('entryForm').reset();
+            loadEntries();
+            loadStats();
+        });
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        loadEntries();
+        loadStats();
+        setInterval(() => { loadEntries(); loadStats(); }, 30000);
+    </script>
+</body>
+</html>

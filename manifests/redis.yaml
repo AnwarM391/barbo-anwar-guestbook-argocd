@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: barbo-anwar-redis-secret
+  namespace: grupp1
+type: Opaque
+stringData:
+  REDIS_PASSWORD: redis123
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: barbo-anwar-redis
+  namespace: grupp1
+  labels:
+    app: barbo-anwar-guestbook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: barbo-anwar-redis
+  template:
+    metadata:
+      labels:
+        app: barbo-anwar-redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        command:
+        - redis-server
+        - --requirepass
+        - $(REDIS_PASSWORD)
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: barbo-anwar-redis-secret
+              key: REDIS_PASSWORD
+        resources:
+          limits:
+            memory: 128Mi
+            cpu: 100m
+          requests:
+            memory: 64Mi
+            cpu: 50m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: barbo-anwar-redis
+  namespace: grupp1
+spec:
+  ports:
+  - port: 6379
+  selector:
+    app: barbo-anwar-redis

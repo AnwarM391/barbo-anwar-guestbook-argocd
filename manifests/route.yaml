@@ -1,0 +1,16 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: barbo-anwar-frontend
+  namespace: grupp1
+  labels:
+    app: barbo-anwar-guestbook
+spec:
+  to:
+    kind: Service
+    name: barbo-anwar-frontend
+  port:
+    targetPort: 8080
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
