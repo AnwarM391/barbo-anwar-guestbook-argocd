@@ -17,7 +17,8 @@ spec:
     spec:
       containers:
       - name: backend
-        image: ghcr.io/AnwarM391/barbo-anwar-guestbook-argocd/backend:latest
+        # OBS: Ändrat till anwarm391 (små bokstäver)
+        image: ghcr.io/anwarm391/barbo-anwar-guestbook-argocd/backend:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080

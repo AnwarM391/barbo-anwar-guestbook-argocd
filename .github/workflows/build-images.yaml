@@ -61,8 +61,8 @@ jobs:
           file: ./backend/Containerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ github.repository }}/backend:latest
-            ${{ env.REGISTRY }}/${{ github.repository }}/backend:${{ github.sha }}
+            ghcr.io/anwarm391/barbo-anwar-guestbook-argocd/backend:latest
+            ghcr.io/anwarm391/barbo-anwar-guestbook-argocd/backend:${{ github.sha }}
 
   build-frontend:
     needs: detect-changes
@@ -89,5 +89,5 @@ jobs:
           file: ./frontend/Containerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ github.repository }}/frontend:latest
-            ${{ env.REGISTRY }}/${{ github.repository }}/frontend:${{ github.sha }}
+            ghcr.io/anwarm391/barbo-anwar-guestbook-argocd/frontend:latest
+            ghcr.io/anwarm391/barbo-anwar-guestbook-argocd/frontend:${{ github.sha }}
