@@ -41,11 +41,11 @@ spec:
               key: REDIS_PASSWORD
         resources:
           limits:
-            memory: 128Mi
+            memory: 64Mi
             cpu: 100m
           requests:
-            memory: 64Mi
-            cpu: 50m
+            memory: 32Mi
+            cpu: 10m # Sänkt från 50m till 10m
 ---
 apiVersion: v1
 kind: Service

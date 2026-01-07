@@ -6,7 +6,7 @@ metadata:
   labels:
     app: barbo-anwar-guestbook
 spec:
-  replicas: 2
+  replicas: 1  # Ändrat från 2 till 1
   selector:
     matchLabels:
       app: barbo-anwar-frontend
@@ -17,7 +17,6 @@ spec:
     spec:
       containers:
       - name: frontend
-        # OBS: Ändrat till anwarm391 (små bokstäver)
         image: ghcr.io/anwarm391/barbo-anwar-guestbook-argocd/frontend:latest
         imagePullPolicy: Always
         ports:
@@ -36,11 +35,11 @@ spec:
           periodSeconds: 5
         resources:
           limits:
-            memory: 128Mi
-            cpu: 200m
-          requests:
             memory: 64Mi
             cpu: 100m
+          requests:
+            memory: 32Mi
+            cpu: 10m  # Sänkt från 100m till 10m
 ---
 apiVersion: v1
 kind: Service
