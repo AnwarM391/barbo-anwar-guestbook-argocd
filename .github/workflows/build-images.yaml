@@ -41,7 +41,7 @@ jobs:
     if: needs.detect-changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
     
     steps:
@@ -64,12 +64,21 @@ jobs:
             ghcr.io/anwarm391/barbo-anwar-guestbook-argocd/backend:latest
             ghcr.io/anwarm391/barbo-anwar-guestbook-argocd/backend:${{ github.sha }}
 
+      - name: Uppdatera Backend Manifest
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          sed -i 's|image: ghcr.io/anwarm391/barbo-anwar-guestbook-argocd/backend:.*|image: ghcr.io/anwarm391/barbo-anwar-guestbook-argocd/backend:${{ github.sha }}|' manifests/backend.yaml
+          git add manifests/backend.yaml
+          git commit -m "Auto-update backend image to ${{ github.sha }}"
+          git push
+
   build-frontend:
     needs: detect-changes
     if: needs.detect-changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
     
     steps:
@@ -91,3 +100,12 @@ jobs:
           tags: |
             ghcr.io/anwarm391/barbo-anwar-guestbook-argocd/frontend:latest
             ghcr.io/anwarm391/barbo-anwar-guestbook-argocd/frontend:${{ github.sha }}
+
+      - name: Uppdatera Frontend Manifest
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          sed -i 's|image: ghcr.io/anwarm391/barbo-anwar-guestbook-argocd/frontend:.*|image: ghcr.io/anwarm391/barbo-anwar-guestbook-argocd/frontend:${{ github.sha }}|' manifests/frontend.yaml
+          git add manifests/frontend.yaml
+          git commit -m "Auto-update frontend image to ${{ github.sha }}"
+          git push
