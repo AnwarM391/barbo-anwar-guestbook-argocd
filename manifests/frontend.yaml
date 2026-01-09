@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: ghcr.io/anwarm391/barbo-anwar-guestbook-argocd/frontend:6deb9cc41cee5e7fcd4d64d352be93b360878a0b
+        image: ghcr.io/anwarm391/barbo-anwar-guestbook-argocd/frontend:6887d493d63dc9645dcd91251eda304ff9f0809e
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
