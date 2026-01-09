@@ -6,7 +6,7 @@ metadata:
   labels:
     app: barbo-anwar-guestbook
 spec:
-  replicas: 1  # Ändrat från 2 till 1
+  replicas: 3  # Ändrat från 2 till 1
   selector:
     matchLabels:
       app: barbo-anwar-frontend
